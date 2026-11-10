@@ -152,6 +152,12 @@ jobs:
 
           Write-Host "Downloading $($asset.name)"
           Invoke-WebRequest -Uri $asset.browser_download_url -OutFile yy-thunks.zip -Headers $headers
+          # Pin the exact archive: a re-uploaded release asset must not change what gets linked in.
+          $expectedHash = "da939b76b78e654b50f442c6928f9904ab0dc822c154c485bcb822e77953f4f7"
+          $actualHash = (Get-FileHash yy-thunks.zip -Algorithm SHA256).Hash.ToLower()
+          if ($actualHash -ne $expectedHash) {
+            throw "YY-Thunks-Lib.zip SHA-256 mismatch: expected $expectedHash, got $actualHash"
+          }
           Expand-Archive -Path yy-thunks.zip -DestinationPath yy-thunks -Force
 
           $libDir = Join-Path $PWD "yy-thunks\Lib\$minOs\$arch"
